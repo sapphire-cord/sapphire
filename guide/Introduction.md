@@ -26,7 +26,9 @@ That's as basic as it can get.
 - First we create a `*sapphire.Bot` with `sapphire.New` passing in our `*discordgo.Session`
 - Next we set a prefix with `bot.SetPrefix` (the default is `!`)
 - Next we load the builtin commands including `help` with `bot.LoadBuiltins()`
-- Finally we connect the bot to discord using `bot.Connect()`
+- Finally we connect the bot to discord using `bot.Connect()`,
+
+> **Note:** As said in discordgo's documentation, you must prefix the token with `Bot` for bot accounts.
 
 If you need dynamic prefixes you can also supply a function that is called everytime sapphire needs the prefix
 ```go
