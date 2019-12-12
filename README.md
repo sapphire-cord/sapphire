@@ -1,7 +1,7 @@
 # Sapphire
 Sapphire is a bot framework built for [discordgo](https://github.com/bwmarrin/discordgo)
 
-Join our Discord at [discord.gg/](https://discord.gg/)
+Join our Discord at [discord.gg/ArwQrH4](https://discord.gg/ArwQrH4)
 
 **Features:**
 - Easy to configure, lot of configurations with sane defaults.
