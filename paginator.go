@@ -4,6 +4,7 @@ import (
   "github.com/bwmarrin/discordgo"
   "fmt"
   "time"
+  "sync"
 )
 
 // Emoji constants.
@@ -21,11 +22,12 @@ type Paginator struct {
   ChannelID string // The ID of the channel we are on.
   Template func() *Embed // Base template that is passed to AddPage calls.
   Pages []*discordgo.MessageEmbed // Embeds for all pages.
-  Index int // Index of current page
+  index int // Index of current page, Use GetIndex() which aquires the lock.
   Message *discordgo.Message // The sent message to be edited as we go
   AuthorID string // The user that can control this paginator.
   StopChan chan bool // Stop paginator by sending to this channel.
   Timeout time.Duration // Duration of when the paginator expires. (default: 5minutes)
+  lock sync.Mutex
 }
 
 // NewPaginator creates a new paginator and returns it.
@@ -37,7 +39,7 @@ func NewPaginator(session *discordgo.Session, channel, author string) *Paginator
     Session: session,
     ChannelID: channel,
     Running: false,
-    Index: 0,
+    index: 0,
     Message: nil,
     AuthorID: author,
     StopChan: make(chan bool),
@@ -54,6 +56,12 @@ func NewPaginatorForContext(ctx *CommandContext) *Paginator {
 // SetTemplate sets the base template.
 func (p *Paginator) SetTemplate(em func() *Embed) {
   p.Template = em
+}
+
+func (p *Paginator) GetIndex() int {
+  p.lock.Lock()
+  defer p.lock.Unlock()
+  return p.index
 }
 
 // Adds a page, takes a function that recieves the copy of embed template
@@ -89,19 +97,21 @@ func (p *Paginator) Stop() {
 // Retrieves the next index for the next page
 // returns 0 to go back to first page if we are on last page already.
 func (p *Paginator) getNextIndex() int {
-  if p.Index >= len(p.Pages) - 1 {
+  index := p.GetIndex()
+  if index >= len(p.Pages) - 1 {
     return 0
   }
-  return p.Index + 1
+  return index + 1
 }
 
 // Retrieves the previous index for the previous page 
 // returns the last page if we are already on the first page.
 func (p *Paginator) getPreviousIndex() int {
-  if p.Index == 0 {
+  index := p.GetIndex()
+  if index == 0 {
     return len(p.Pages) - 1
   }
-  return p.Index - 1
+  return index - 1
 }
 
 // Sets the footers of all pages to their page number out of total pages.
@@ -115,11 +125,13 @@ func (p *Paginator) SetFooter() {
 }
 
 // Switches pages, index is assumed to be a valid index. (can panic if it's not)
-// Edits the current message to the given page and updates p.Index
+// Edits the current message to the given page and updates the index.
 func (p *Paginator) Goto(index int) {
   page := p.Pages[index]
   p.Session.ChannelMessageEditEmbed(p.ChannelID, p.Message.ID, page)
-  p.Index = index
+  p.lock.Lock()
+  p.index = index
+  p.lock.Unlock()
 }
 
 // Switches to next page, this is safer than raw Goto as it compares indices
