@@ -5,6 +5,7 @@ This directory got a guide for you to get started with sapphire.
 - [Introduction](Introduction.md) - An introduction to sapphire.
 - [Commands](Commands.md) - Creating commands.
 - [Arguments](Arguments.md) - Command arguments.
+- [Flags](Flags.md) - Command flags.
 - [Monitors](Monitors.md) - Message monitors.
 - [Localization](Localization.md) - Localizing your bot.
 - [Embeds](Embeds.md) - Sending embeds.
