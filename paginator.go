@@ -9,11 +9,11 @@ import (
 
 // Emoji constants.
 const (
-  EmojiLeft = "◀" // Go left, -1 page.
-  EmojiRight = "▶" // Go right, +1 page.
+  EmojiLeft = "◀️" // Go left, -1 page.
+  EmojiRight = "▶️" // Go right, +1 page.
   EmojiFirst = "⏪" // Go to first page.
   EmojiLast = "⏩" // Go to last page.
-  EmojiStop = "⏹" // Stop the paginator.
+  EmojiStop = "⏹️" // Stop the paginator.
 )
 
 type Paginator struct {

@@ -47,6 +47,8 @@ Sapphire is still in it's early stages of development and there is a lot of thin
 Here is a little personal TODO for myself but you can help me with if you wish so.
 - Use mutexes where needed.
 - Improve the arguments API.
+- Add proper logging support.
+- Add a permission check system for commands.
 
 It is incomplete but fairly usable.
 
