@@ -39,7 +39,7 @@ That's it! a basic bot will be launched with builtin commands such as help.
 
 Read our [guide](guide/) for lot of more cool things you can do! (Don't be afraid our guides are easy to follow and we are open for questions.)
 
-See also the [documentation](https://godoc.org/github.com/pollen5/sapphire) after the guides for even more possibilies!
+See also the [documentation](https://godoc.org/github.com/sapphire-cord/sapphire) after the guides for even more possibilies!
 
 ## Contributing
 Sapphire is still in it's early stages of development and there is a lot of things that can be done, we welcome contributions on everything, typo-fixes, grammar-fixes, detail improvement, new guides and contributions on the code are all welcome.
