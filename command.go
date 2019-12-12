@@ -323,13 +323,17 @@ func (ctx *CommandContext) ParseArgs() bool {
     }
     if tag.Rest {
       cut := ctx.RawArgs[i:]
-      for _, raw := range cut {
+      for i, raw := range cut {
         arg, err := ParseArgument(ctx, tag, raw)
         if err != nil {
           ctx.Reply(err.Error())
           return false
         }
-        ctx.Args = append(ctx.Args, arg)
+        if i > len(ctx.Args) - 1 {
+          ctx.Args = append(ctx.Args, arg)
+        } else {
+          ctx.Args[i] = arg
+        }
       }
     } else {
       arg, err := ParseArgument(ctx, tag, safeGet(i))
