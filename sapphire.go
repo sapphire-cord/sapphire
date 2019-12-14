@@ -54,7 +54,7 @@ func New(s *discordgo.Session) *Bot {
       return "en-US"
     },
     ErrorHandler: func(_ *Bot, err interface{}) {
-      fmt.Printf("Panic recovered: %s\n", err)
+      fmt.Printf("Panic recovered: %v\n", err)
     },
     Commands: make(map[string]*Command),
     aliases: make(map[string]string),
@@ -70,8 +70,9 @@ func New(s *discordgo.Session) *Bot {
   }
   bot.AddLanguage(English)
   bot.SetDefaultLocale("en-US")
-  bot.AddMonitor(NewMonitor("commandHandler", CommandHandlerMonitor))
+  bot.AddMonitor(NewMonitor("commandHandler", CommandHandlerMonitor).AllowEdits())
   s.AddHandler(monitorListener(bot))
+  s.AddHandler(monitorEditListener(bot))
   s.AddHandlerOnce(func(s *discordgo.Session, ready *discordgo.Ready) {
     fmt.Printf("Logged in as %s#%s (%s)\n", ready.User.Username, ready.User.Discriminator, ready.User.ID)
     // Sweeps all cooldowns/edits every hour to prevent infinite memory usage

@@ -17,6 +17,7 @@ type Monitor struct {
   IgnoreWebhooks bool // Wether to ignore messages sent by webhooks (default: true)
   IgnoreBots bool // Wether to ignore messages sent by bots (default: true)
   IgnoreSelf bool // Wether to ignore the bot itself. (default: true)
+  IgnoreEdits bool // Wether to ignore edited messages. (default: true)
 }
 
 func (m *Monitor) AllowBots() *Monitor {
@@ -39,6 +40,11 @@ func (m *Monitor) SetGuildOnly(toggle bool) *Monitor {
   return m
 }
 
+func (m *Monitor) AllowEdits() *Monitor {
+  m.IgnoreEdits = false
+  return m
+}
+
 func NewMonitor(name string, monitor MonitorHandler) *Monitor {
   return &Monitor{
     Name: name,
@@ -48,6 +54,7 @@ func NewMonitor(name string, monitor MonitorHandler) *Monitor {
     IgnoreWebhooks: true,
     IgnoreBots: true,
     IgnoreSelf: true,
+    IgnoreEdits: true,
   }
 }
 
@@ -61,56 +68,76 @@ type MonitorContext struct {
   Bot *Bot
 }
 
-func monitorListener(bot *Bot) func(*discordgo.Session, *discordgo.MessageCreate) {
-  return func(s *discordgo.Session, m *discordgo.MessageCreate) {
-    for _, monitor := range bot.Monitors {
-      if !monitor.Enabled {
-        continue
-      }
+func monitorHandler(bot *Bot, m *discordgo.Message, edit bool) {
 
-      var guild *discordgo.Guild = nil
-      if m.GuildID != "" {
-        g, err := s.State.Guild(m.GuildID)
-        if err != nil {
-          continue
-        }
-        guild = g
-      }
+  if m.Author == nil {
+    return // for message edits sometimes author is nil, in practice it works fine when we ignore those.
+  }
 
-      if monitor.GuildOnly && guild == nil {
-        continue
-      }
-
-      if m.Author.ID == s.State.User.ID && monitor.IgnoreSelf {
-        continue
-      }
-
-      if m.Author.Bot && monitor.IgnoreBots {
-        continue
-      }
-
-      if m.WebhookID != "" && monitor.IgnoreWebhooks {
-        continue
-      }
-
-      channel, err := s.State.Channel(m.ChannelID)
-      if err != nil { continue }
-      // Discordgo already launched this function in a seperate goroutine we will stay inside it.
-      monitor.Run(bot, &MonitorContext{
-        Session: s,
-        Message: m.Message,
-        Author: m.Author,
-        Channel: channel,
-        Monitor: monitor,
-        Guild: guild,
-        Bot: bot,
-      })
+  for _, monitor := range bot.Monitors {
+    if !monitor.Enabled {
+      continue
     }
-    defer func() {
-      if err := recover(); err != nil {
-        bot.ErrorHandler(bot, err)
+
+    if edit && monitor.IgnoreEdits {
+      continue
+    }
+
+    var guild *discordgo.Guild = nil
+    if m.GuildID != "" {
+      g, err := bot.Session.State.Guild(m.GuildID)
+      if err != nil {
+        continue
       }
-    }()
+      guild = g
+    }
+
+    if monitor.GuildOnly && guild == nil {
+      continue
+    }
+
+    if m.Author.ID == bot.Session.State.User.ID && monitor.IgnoreSelf {
+      continue
+    }
+
+    if m.Author.Bot && monitor.IgnoreBots {
+      continue
+    }
+
+    if m.WebhookID != "" && monitor.IgnoreWebhooks {
+      continue
+    }
+
+    channel, err := bot.Session.State.Channel(m.ChannelID)
+    if err != nil { continue }
+    // Discordgo already launched this function in a seperate goroutine we will stay inside it.
+    monitor.Run(bot, &MonitorContext{
+      Session: bot.Session,
+      Message: m,
+      Author: m.Author,
+      Channel: channel,
+      Monitor: monitor,
+      Guild: guild,
+      Bot: bot,
+    })
+  }
+
+  defer func() {
+    if err := recover(); err != nil {
+      bot.ErrorHandler(bot, err)
+    }
+  }()
+}
+
+func monitorListener(bot *Bot) func(s *discordgo.Session, m *discordgo.MessageCreate) {
+  return func(s *discordgo.Session, m *discordgo.MessageCreate) {
+    monitorHandler(bot, m.Message, false)
+  }
+}
+
+func monitorEditListener(bot *Bot) func(s *discordgo.Session, m *discordgo.MessageUpdate) {
+  return func(s *discordgo.Session, m *discordgo.MessageUpdate) {
+    monitorHandler(bot, m.Message, true)
   }
 }
 

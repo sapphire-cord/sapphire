@@ -148,7 +148,8 @@ func (ctx *CommandContext) Reply(content string, args ...interface{}) (*discordg
     ctx.Bot.CommandEdits[ctx.Message.ID] = msg.ID
     return msg, nil
   }
-  return ctx.Session.ChannelMessageEditComplex(discordgo.NewMessageEdit(ctx.Channel.ID, m).SetContent(content).SetEmbed(&discordgo.MessageEmbed{}))
+  return ctx.Session.ChannelMessageEditComplex(discordgo.NewMessageEdit(ctx.Channel.ID, m).
+    SetContent(content))
 }
 
 // ReplyNoEdit replies with content but does not consider editable option of the command.

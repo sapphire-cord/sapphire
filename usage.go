@@ -74,7 +74,7 @@ func ParseUsage(usage string) ([]*UsageTag, error) {
 }
 
 // HumanizeUsageRegex is the regexp used for HuamnizeUsage
-var HumanizeUsageRegex = regexp.MustCompile("(<|\\[|\\()(\\w+):[^.]+?(\\.\\.\\.)?(>|\\]|\\))")
+var HumanizeUsageRegex = regexp.MustCompile("(<|\\[)(\\w+):[^.]+?(\\.\\.\\.)?(>|\\])")
 
 // HumanizeUsage removes the unneccessary types and shows only the names.
 // e.g <hello:string> <user:user> [rest:int...] => <hello> <user> [rest...]
