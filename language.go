@@ -41,6 +41,7 @@ func (l *Language) GetDefault(key string, def string, args ...interface{}) strin
 
 var English = NewLanguage("en-US").
   Set("LOCALE_NO_KEY", "No localization found for the key \"%s\" Please report this to the developers.").
+  Set("COMMAND_ERROR", "Something went wrong, please try again later.").
   Set("COMMAND_PING", "Pong!").
   Set("COMMAND_PING_PONG", "Pong! Latency: **%d**ms, API Latency: **%d**ms").
   Set("COMMAND_ENABLE_ALREADY", "That command is already enabled!").

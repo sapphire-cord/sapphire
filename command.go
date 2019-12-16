@@ -252,6 +252,7 @@ func (ctx *CommandContext) SendFile(name string, file io.Reader) (*discordgo.Mes
 }
 
 // Error invokes the bot's error handler, see bot.SetErrorHandler
+// It also replies with a message indicating an unexpected error.
 func (ctx *CommandContext) Error(err interface{}, args ...interface{}) {
   // We make err an interface so it can also be invoked standalone with error objects, etc.
 
@@ -259,6 +260,8 @@ func (ctx *CommandContext) Error(err interface{}, args ...interface{}) {
   if len(args) > 0 {
     err = fmt.Sprintf(fmt.Sprint(err), args...)
   }
+
+  ctx.ReplyLocale("COMMAND_ERROR")
   ctx.Bot.ErrorHandler(ctx.Bot, err)
 }
 
