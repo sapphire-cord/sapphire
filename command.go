@@ -120,6 +120,7 @@ type CommandContext struct {
   Flags map[string]string // Map of flags passed to the command. e.g --flag=yo
   Locale *Language // The current language.
   RawArgs []string // The raw args that may not match the usage string.
+  InvokedName string // The name this command was invoked as, this includes the used alias.
 }
 
 // Reply replies with a string.

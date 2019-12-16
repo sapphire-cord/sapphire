@@ -217,6 +217,7 @@ func CommandHandlerMonitor(bot *Bot, ctx *MonitorContext) {
     Prefix: prefix,
     Guild: ctx.Guild,
     Flags: flags,
+    InvokedName: input,
   }
 
   lang := bot.Language(bot, ctx.Message, ctx.Channel.Type == discordgo.ChannelTypeDM)
