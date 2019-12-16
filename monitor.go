@@ -150,7 +150,24 @@ var delim = regexp.MustCompile("(\\s)(?:\\s)+")
 func CommandHandlerMonitor(bot *Bot, ctx *MonitorContext) {
   prefix := bot.Prefix(bot, ctx.Message, ctx.Channel.Type == discordgo.ChannelTypeDM)
   if !strings.HasPrefix(ctx.Message.Content, prefix) {
-    return
+    if bot.MentionPrefix {
+      // Check mention prefix.
+      // Could've used regex here but it adds more complexity of compiling it at a proper time
+      // Because we will need the ID so we would need to delay it until ready.
+      // Let's just simplify it for now.
+      mPrefix := "<@" + bot.Session.State.User.ID + "> "
+      mNickPrefix := "<@!" + bot.Session.State.User.ID + "> "
+      if strings.HasPrefix(ctx.Message.Content, mPrefix) {
+        prefix = mPrefix
+      } else if strings.HasPrefix(ctx.Message.Content, mNickPrefix) {
+        prefix = mNickPrefix
+      } else {
+        // No prefix found.
+        return
+      }
+    } else {
+      return
+    }
   }
 
   // Parsing flags

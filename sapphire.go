@@ -39,6 +39,7 @@ type Bot struct {
   DefaultLocale *Language // Default locale to fallback. (default: en-US)
   CommandTyping bool // Wether to start typing when a command is being ran. (default: true)
   ErrorHandler ErrorHandler // The handler to catch panics in monitors (which includes commands).
+  MentionPrefix bool // Wether to allow @mention of the bot to be used as a prefix too. (default: true)
   sweepTicker *time.Ticker
   Application *discordgo.Application // The bot's application.
 }
@@ -67,6 +68,7 @@ func New(s *discordgo.Session) *Bot {
     CommandTyping: true,
     sweepTicker: time.NewTicker(1 * time.Hour),
     Application: nil,
+    MentionPrefix: true,
   }
   bot.AddLanguage(English)
   bot.SetDefaultLocale("en-US")
@@ -92,6 +94,12 @@ func New(s *discordgo.Session) *Bot {
     bot.Application = app
     if bot.OwnerID == "" { bot.OwnerID = app.Owner.ID }*/
   })
+  return bot
+}
+
+// SetMentionPrefix toggles the usage of the bot's @mention as a prefix.
+func (bot *Bot) SetMentionPrefix(toggle bool) *Bot {
+  bot.MentionPrefix = toggle
   return bot
 }
 
