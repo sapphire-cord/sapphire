@@ -187,6 +187,13 @@ func (bot *Bot) Connect() error {
   return bot.Session.Open()
 }
 
+// MustConnect is like Connect but panics if there is an error.
+func (bot *Bot) MustConnect() {
+  if err := bot.Connect(); err != nil {
+    panic(err)
+  }
+}
+
 // AddLanguage adds the specified language.
 func (bot *Bot) AddLanguage(lang *Language) *Bot {
   bot.Languages[lang.Name] = lang
