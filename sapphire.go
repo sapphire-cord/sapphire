@@ -76,7 +76,6 @@ func New(s *discordgo.Session) *Bot {
   s.AddHandler(monitorListener(bot))
   s.AddHandler(monitorEditListener(bot))
   s.AddHandlerOnce(func(s *discordgo.Session, ready *discordgo.Ready) {
-    fmt.Printf("Logged in as %s#%s (%s)\n", ready.User.Username, ready.User.Discriminator, ready.User.ID)
     // Sweeps all cooldowns/edits every hour to prevent infinite memory usage
     // While even active cooldowns gets reset it is fine though, as its only hourly
     // and is not too common for users to even notice it, same for edits.
@@ -86,6 +85,8 @@ func New(s *discordgo.Session) *Bot {
       bot.CommandEdits = make(map[string]string)
     }()
 
+    // TODO: for some reason it says bots cannot use this endpoint, i've seen a similar usecase before
+    // try to figure out a way.
     /*app, err := s.Application(ready.User.ID)
     if err != nil {
       bot.ErrorHandler(bot, err)
@@ -156,6 +157,7 @@ func (bot *Bot) Wait() {
   <-sc
   // Cleanly close down the Discord session.
   bot.Session.Close()
+  bot.sweepTicker.Stop()
 }
 
 func (bot *Bot) AddCommand(cmd *Command) *Bot {

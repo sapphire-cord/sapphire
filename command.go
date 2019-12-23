@@ -301,7 +301,6 @@ func (ctx *CommandContext) JoinedArgs(sliced ...int) string {
   var s int = 0
   if len(sliced) > 0 { s = sliced[0] }
   return strings.Join(ctx.RawArgs[s:], " ")
-  return ""
 }
 
 // Parses the raw args and fills in ctx.Args and returns true on success and on failure it replies with the error and returns false
