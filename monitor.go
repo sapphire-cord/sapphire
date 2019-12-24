@@ -266,5 +266,12 @@ func CommandHandlerMonitor(bot *Bot, ctx *MonitorContext) {
   }
 
   bot.CommandsRan++
+
+  defer func() {
+    if err := recover(); err != nil {
+      bot.ErrorHandler(bot, &CommandError{Err:err, Context:cctx})
+    }
+  }()
+
   cmd.Run(cctx)
 }

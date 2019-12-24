@@ -123,6 +123,19 @@ type CommandContext struct {
   InvokedName string // The name this command was invoked as, this includes the used alias.
 }
 
+// CommandError represents a panic that occured during a command execution.
+// You can type assert this in bot.SetErrorHandler's callback to get more context about the error.
+// Implements the error interface
+type CommandError struct {
+  Err interface{} // The value passed to panic()
+  Context *CommandContext // The context of the command, use this to e.g get the command's name etc.
+}
+
+// Error implements the error interface, it simply calls fmt.Sprint on the panicked value.
+func (err *CommandError) Error() string {
+  return fmt.Sprint(err.Err)
+}
+
 // Reply replies with a string.
 // It will call Sprintf() on the content if atleast one vararg is passed.
 func (ctx *CommandContext) Reply(content string, args ...interface{}) (*discordgo.Message, error) {
