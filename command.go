@@ -370,7 +370,7 @@ func (ctx *CommandContext) ParseArgs() bool {
       arg, err := ParseArgument(ctx, tag, safeGet(i))
 
       if err != nil {
-        fmt.Println(err.Error())
+        ctx.Reply(err.Error())
         return false
       }
 
