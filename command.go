@@ -374,6 +374,19 @@ func (ctx *CommandContext) User(id string) *discordgo.User {
   return nil
 }
 
+// FetchUser searches the cache for the given user id and if not found, attempts to fetch it from the API.
+func (ctx *CommandContext) FetchUser(id string) (*discordgo.User, error) {
+  // Try the cache first.
+  user := ctx.User(id)
+
+  if user != nil {
+    return user, nil
+  }
+
+  // Call the API.
+  return ctx.Session.User(id)
+}
+
 // Member gets a member by id from the current guild, returns nil if not found.
 func (ctx *CommandContext) Member(id string) *discordgo.Member {
   if ctx.Guild == nil { return nil }
