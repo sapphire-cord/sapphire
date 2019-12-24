@@ -327,26 +327,40 @@ func (ctx *CommandContext) ParseArgs() bool {
     }
     return ""
   }
+
   // If it doesn't need arguments we are done.
   if ctx.Command.UsageString == "" {
     return true
   }
+
   ctx.Args = make([]*Argument, len(ctx.Command.Usage))
+
   for i, tag := range ctx.Command.Usage {
     v := safeGet(i)
+
     if tag.Required && v == "" {
       ctx.Reply("The argument **%s** is required.", tag.Name)
       return false
     }
+
     if tag.Rest {
       cut := ctx.RawArgs[i:]
-      for i, raw := range cut {
+
+      for ii, raw := range cut {
         arg, err := ParseArgument(ctx, tag, raw)
+
         if err != nil {
           ctx.Reply(err.Error())
           return false
         }
-        if i > len(ctx.Args) - 1 {
+
+        // This ugly test is because we allocate a slice of n where n = amount of usage tags.
+        // So imagine <test:string> <another:string...> that's 2
+        // We hit rest and we don't have enough size to set that index directly. (because another can hold infinite args)
+        // So we use append, however we gotta be careful the <another:string...> tag also got it's dedicated index allocated
+        // So we do an ugly check: if we are on that index then we can just set directly otherwise we append.
+        // This could eventually be cleaned up for a better solution.
+        if ii > len(ctx.Args) - 2 {
           ctx.Args = append(ctx.Args, arg)
         } else {
           ctx.Args[i] = arg
@@ -354,13 +368,16 @@ func (ctx *CommandContext) ParseArgs() bool {
       }
     } else {
       arg, err := ParseArgument(ctx, tag, safeGet(i))
+
       if err != nil {
-        ctx.Reply(err.Error())
+        fmt.Println(err.Error())
         return false
       }
+
       ctx.Args[i] = arg
     }
   }
+
   return true
 }
 
