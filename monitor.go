@@ -110,6 +110,13 @@ func monitorHandler(bot *Bot, m *discordgo.Message, edit bool) {
 
     channel, err := bot.Session.State.Channel(m.ChannelID)
     if err != nil { continue }
+
+    defer func() {
+      if err := recover(); err != nil {
+        bot.ErrorHandler(bot, err)
+      }
+    }()
+
     // Discordgo already launched this function in a seperate goroutine we will stay inside it.
     monitor.Run(bot, &MonitorContext{
       Session: bot.Session,
@@ -121,12 +128,6 @@ func monitorHandler(bot *Bot, m *discordgo.Message, edit bool) {
       Bot: bot,
     })
   }
-
-  defer func() {
-    if err := recover(); err != nil {
-      bot.ErrorHandler(bot, err)
-    }
-  }()
 }
 
 func monitorListener(bot *Bot) func(s *discordgo.Session, m *discordgo.MessageCreate) {
