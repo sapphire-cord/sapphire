@@ -107,7 +107,7 @@ func ParseArgument(ctx *CommandContext, tag *UsageTag, raw string) (*Argument, e
       return nil, fmt.Errorf("**%s** must be a valid user mention or ID.", tag.Name)
     }
 
-    user := ctx.FetchUser(match[1])
+    user, _ := ctx.FetchUser(match[1])
 
     if user == nil {
       return nil, fmt.Errorf("That user cannot be found.")
