@@ -275,7 +275,7 @@ func (ctx *CommandContext) Error(err interface{}, args ...interface{}) {
   }
 
   ctx.ReplyLocale("COMMAND_ERROR")
-  ctx.Bot.ErrorHandler(ctx.Bot, err)
+  ctx.Bot.ErrorHandler(ctx.Bot, &CommandError{Err:err, Context:ctx})
 }
 
 // Flag returns the value of a commmnd flag, if it is a bool-flag use HasFlag() instead.
