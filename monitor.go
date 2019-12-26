@@ -74,6 +74,13 @@ func monitorHandler(bot *Bot, m *discordgo.Message, edit bool) {
     return // for message edits sometimes author is nil, in practice it works fine when we ignore those.
   }
 
+  // Catch panics from monitors.
+  defer func() {
+    if err := recover(); err != nil {
+      bot.ErrorHandler(bot, err)
+    }
+  }()
+
   for _, monitor := range bot.Monitors {
     if !monitor.Enabled {
       continue
@@ -111,14 +118,7 @@ func monitorHandler(bot *Bot, m *discordgo.Message, edit bool) {
     channel, err := bot.Session.State.Channel(m.ChannelID)
     if err != nil { continue }
 
-    defer func() {
-      if err := recover(); err != nil {
-        bot.ErrorHandler(bot, err)
-      }
-    }()
-
-    // Discordgo already launched this function in a seperate goroutine we will stay inside it.
-    monitor.Run(bot, &MonitorContext{
+    go monitor.Run(bot, &MonitorContext{
       Session: bot.Session,
       Message: m,
       Author: m.Author,
@@ -150,6 +150,7 @@ var delim = regexp.MustCompile("(\\s)(?:\\s)+")
 // This is the builtin monitor responsible for running commands.
 func CommandHandlerMonitor(bot *Bot, ctx *MonitorContext) {
   prefix := bot.Prefix(bot, ctx.Message, ctx.Channel.Type == discordgo.ChannelTypeDM)
+
   if !strings.HasPrefix(ctx.Message.Content, prefix) {
     if bot.MentionPrefix {
       // Check mention prefix.
