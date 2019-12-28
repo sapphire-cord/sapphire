@@ -42,6 +42,7 @@ type Bot struct {
   MentionPrefix bool // Wether to allow @mention of the bot to be used as a prefix too. (default: true)
   sweepTicker *time.Ticker
   Application *discordgo.Application // The bot's application.
+  Uptime time.Time // The time the bot hit ready event.
 }
 
 // New creates a new sapphire bot, pass in a discordgo instance configured with your token.
@@ -76,6 +77,8 @@ func New(s *discordgo.Session) *Bot {
   s.AddHandler(monitorListener(bot))
   s.AddHandler(monitorEditListener(bot))
   s.AddHandlerOnce(func(s *discordgo.Session, ready *discordgo.Ready) {
+    bot.Uptime = time.Now()
+
     // Sweeps all cooldowns/edits every hour to prevent infinite memory usage
     // While even active cooldowns gets reset it is fine though, as its only hourly
     // and is not too common for users to even notice it, same for edits.
@@ -334,7 +337,7 @@ func (bot *Bot) LoadBuiltins() *Bot {
       AddField("Go Version", strings.TrimPrefix(runtime.Version(), "go")).
       AddField("DiscordGo Version", discordgo.VERSION).
       AddField("Sapphire Version", VERSION).
-      AddField("Bot Stats", fmt.Sprintf("**Guilds:** %d\n**Users:** %d\n**Channels:** %d", guilds, users, channels)).
+      AddField("Bot Stats", fmt.Sprintf("**Guilds:** %d\n**Users:** %d\n**Channels:** %d\n**Uptime:** %s", guilds, users, channels, humanize.RelTime(bot.Uptime, time.Now(), "", ""))).
       AddField("Command Stats", fmt.Sprintf("**Total Commands:** %d\n**Commands Ran:** %d", len(bot.Commands), bot.CommandsRan)).
       AddField("Memory Stats", fmt.Sprintf("**Used:** %s / %s\n**Garbage Collected:** %s\n**GC Cycles:** %d\n**Forced GC Cycles:** %d\n**Last GC:** %s\n**Next GC Target:** %s\n**Goroutines:** %d",
         humanize.Bytes(stats.Alloc),
