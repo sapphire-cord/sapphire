@@ -16,6 +16,7 @@ Join our Discord at [discord.gg/ArwQrH4](https://discord.gg/ArwQrH4)
 ```sh
 $ go get github.com/sapphire-cord/sapphire
 ```
+Run the same command with `-u` once in a while, sapphire is constantly being updated.
 
 ## Usage
 ```go
