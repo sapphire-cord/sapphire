@@ -43,6 +43,7 @@ type Bot struct {
   sweepTicker *time.Ticker
   Application *discordgo.Application // The bot's application.
   Uptime time.Time // The time the bot hit ready event.
+  Color int // The color used in builtin commands's embeds.
 }
 
 // New creates a new sapphire bot, pass in a discordgo instance configured with your token.
@@ -70,6 +71,7 @@ func New(s *discordgo.Session) *Bot {
     sweepTicker: time.NewTicker(1 * time.Hour),
     Application: nil,
     MentionPrefix: true,
+    Color: COLOR,
   }
   bot.AddLanguage(English)
   bot.SetDefaultLocale("en-US")
@@ -280,7 +282,7 @@ func (bot *Bot) LoadBuiltins() *Bot {
           cmd.Category,
           aliases,
           fmt.Sprintf("%s%s %s", ctx.Prefix, cmd.Name, HumanizeUsage(cmd.UsageString)),
-        )).SetColor(COLOR).SetTitle("Command Help"))
+        )).SetColor(bot.Color).SetTitle("Command Help"))
         return
       }
       // Send all commands.
@@ -333,7 +335,7 @@ func (bot *Bot) LoadBuiltins() *Bot {
     ctx.BuildEmbed(NewEmbed().
       SetTitle("Stats").
       SetAuthor(ctx.Session.State.User.Username, ctx.Session.State.User.AvatarURL("256")).
-      SetColor(COLOR).
+      SetColor(bot.Color).
       AddField("Go Version", strings.TrimPrefix(runtime.Version(), "go")).
       AddField("DiscordGo Version", discordgo.VERSION).
       AddField("Sapphire Version", VERSION).
