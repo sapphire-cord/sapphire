@@ -306,7 +306,7 @@ func (bot *Bot) LoadBuiltins() *Bot {
 
       var embed = &discordgo.MessageEmbed{
         Title: "Commands",
-        Color: COLOR,
+        Color: bot.Color,
         Footer: &discordgo.MessageEmbedFooter{Text: "For more info on a command use: " + ctx.Prefix + "help <command>"},
         Author: &discordgo.MessageEmbedAuthor{IconURL: ctx.Author.AvatarURL("256"), Name: ctx.Author.Username},
       }
