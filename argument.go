@@ -73,6 +73,9 @@ func arg(val interface{}) *Argument {
 // The Regexp used for matching user mentions.
 var MentionRegex = regexp.MustCompile("^(?:<@!?)?(\\d{17,19})>?$")
 
+// The Regexp used for matching channel mentions.
+var ChannelMentionRegex = regexp.MustCompile("^(?:<#)?(\\d{17,19})>?$")
+
 // Parses the raw argument as specified in tag in context of ctx
 func ParseArgument(ctx *CommandContext, tag *UsageTag, raw string) (*Argument, error) {
 	if raw == "" {
@@ -114,6 +117,22 @@ func ParseArgument(ctx *CommandContext, tag *UsageTag, raw string) (*Argument, e
 		}
 
 		return arg(user), nil
+	case "chan":
+		fallthrough // Alias
+	case "channel":
+		match := ChannelMentionRegex.FindStringSubmatch(raw)
+
+		if len(match) < 2 {
+			return nil, fmt.Errorf("**%s** must be a valid channel mention or ID.", tag.Name)
+		}
+
+		channel, _ := ctx.Session.State.Channel(match[1])
+
+		if channel == nil {
+			return nil, fmt.Errorf("That channel cannot be found.")
+		}
+
+		return arg(channel), nil
 	case "literal":
 		if raw != tag.Name {
 			return nil, fmt.Errorf("Literal argument must be **%s**", tag.Name)
